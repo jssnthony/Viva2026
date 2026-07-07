@@ -5,6 +5,8 @@ using UnityEngine.InputSystem.UI;
 
 public class TouchUI : MonoBehaviour
 {
+    private Sprite circleSprite;
+
     void Awake()
     {
         EventSystem es = Object.FindFirstObjectByType<EventSystem>();
@@ -14,6 +16,8 @@ public class TouchUI : MonoBehaviour
             esGO.AddComponent<EventSystem>();
             esGO.AddComponent<InputSystemUIInputModule>();
         }
+
+        circleSprite = CreateCircleSprite();
 
         GameObject canvasGO = new GameObject("TouchCanvas");
         Canvas canvas = canvasGO.AddComponent<Canvas>();
@@ -29,72 +33,58 @@ public class TouchUI : MonoBehaviour
 
         TouchInputHandler handler = canvasGO.AddComponent<TouchInputHandler>();
 
-        CreateButton(canvasGO, handler, "LeftBtn", new Vector2(120, 80), new Vector2(0f, 0f), new Vector2(0f, 0f), 140, 100, "\u25C0", handler.OnLeftDown, null);
-        CreateButton(canvasGO, handler, "RightBtn", new Vector2(280, 80), new Vector2(0f, 0f), new Vector2(0f, 0f), 140, 100, "\u25B6", handler.OnRightDown, null);
-        CreateButton(canvasGO, handler, "KickBtn", new Vector2(Screen.width - 140, 80), new Vector2(1f, 0f), new Vector2(1f, 0f), 120, 100, "PATADA", null, handler.OnKick);
-        CreateButton(canvasGO, handler, "JumpBtn", new Vector2(Screen.width - 280, 80), new Vector2(1f, 0f), new Vector2(1f, 0f), 120, 100, "SALTO", null, handler.OnJump);
-        CreateButton(canvasGO, handler, "SlideBtn", new Vector2(Screen.width - 420, 80), new Vector2(1f, 0f), new Vector2(1f, 0f), 120, 100, "SLIDE", null, handler.OnSlide);
+        CreateCircleButton(canvasGO, handler.OnLeftDown, handler.OnRelease, "LeftBtn", Vector2.zero, new Vector2(100, 80), 130, "\u25C0");
+        CreateCircleButton(canvasGO, handler.OnRightDown, handler.OnRelease, "RightBtn", Vector2.zero, new Vector2(260, 80), 130, "\u25B6");
+        CreateCircleButton(canvasGO, handler.OnJump, null, "JumpBtn", Vector2.right, new Vector2(-150, 80), 150, "\u2B06");
+        CreateCircleButton(canvasGO, handler.OnKick, null, "KickBtn", Vector2.right, new Vector2(-330, 100), 130, "\u26BD");
+        CreateCircleButton(canvasGO, handler.OnSlide, null, "SlideBtn", Vector2.right, new Vector2(-330, 250), 130, "\u2B07");
     }
 
-    void CreateButton(GameObject parent, TouchInputHandler handler, string name, Vector2 pos, Vector2 anchorMin, Vector2 anchorMax, float width, float height, string label,
-        System.Action onPress, System.Action onClick)
+    Sprite CreateCircleSprite()
+    {
+        int size = 64;
+        Texture2D tex = new Texture2D(size, size);
+        Vector2 center = new Vector2(size / 2f, size / 2f);
+        float radius = size / 2f - 0.5f;
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                float dist = Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), center);
+                tex.SetPixel(x, y, dist <= radius ? Color.white : Color.clear);
+            }
+        }
+        tex.Apply();
+        tex.filterMode = FilterMode.Bilinear;
+        return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f);
+    }
+
+    void CreateCircleButton(GameObject parent, System.Action onDown, System.Action onUp, string name, Vector2 anchorCorner, Vector2 pos, float size, string label)
     {
         GameObject btnGO = new GameObject(name);
         btnGO.transform.SetParent(parent.transform, false);
 
         RectTransform rt = btnGO.AddComponent<RectTransform>();
-        rt.anchorMin = anchorMin;
-        rt.anchorMax = anchorMax;
-        rt.pivot = new Vector2(anchorMin.x, anchorMin.y);
+        rt.anchorMin = anchorCorner;
+        rt.anchorMax = anchorCorner;
+        rt.pivot = anchorCorner;
         rt.anchoredPosition = pos;
-        rt.sizeDelta = new Vector2(width, height);
+        rt.sizeDelta = new Vector2(size, size);
 
         Image img = btnGO.AddComponent<Image>();
-        img.color = new Color(0.1f, 0.1f, 0.1f, 0.6f);
+        img.sprite = circleSprite;
+        img.color = new Color(1f, 1f, 1f, 0.35f);
 
-        Button btn = btnGO.AddComponent<Button>();
-        btn.targetGraphic = img;
-        btn.transition = Selectable.Transition.ColorTint;
-        ColorBlock colors = btn.colors;
-        colors.normalColor = new Color(0.2f, 0.2f, 0.2f, 0.6f);
-        colors.pressedColor = new Color(0.4f, 0.4f, 0.4f, 0.8f);
-        colors.highlightedColor = new Color(0.3f, 0.3f, 0.3f, 0.7f);
-        btn.colors = colors;
-
-        EventTrigger trigger = btnGO.AddComponent<EventTrigger>();
-
-        if (onPress != null)
-        {
-            EventTrigger.Entry pressEntry = new EventTrigger.Entry();
-            pressEntry.eventID = EventTriggerType.PointerDown;
-            pressEntry.callback.AddListener((data) => onPress());
-            trigger.triggers.Add(pressEntry);
-
-            EventTrigger.Entry releaseEntry = new EventTrigger.Entry();
-            releaseEntry.eventID = EventTriggerType.PointerUp;
-            releaseEntry.callback.AddListener((data) => handler.OnRelease());
-            trigger.triggers.Add(releaseEntry);
-        }
-
-        if (onClick != null)
-        {
-            EventTrigger.Entry clickEntry = new EventTrigger.Entry();
-            clickEntry.eventID = EventTriggerType.PointerClick;
-            clickEntry.callback.AddListener((data) => onClick());
-            trigger.triggers.Add(clickEntry);
-        }
+        TouchButton tb = btnGO.AddComponent<TouchButton>();
+        tb.onDown = onDown;
+        tb.onUp = onUp;
 
         GameObject textGO = new GameObject("Text");
         textGO.transform.SetParent(btnGO.transform, false);
         Text text = textGO.AddComponent<Text>();
         text.text = label;
-        Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        if (font == null)
-            font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-        if (font == null)
-            font = Font.CreateDynamicFontFromOSFont("Arial", 24);
-        text.font = font;
-        text.fontSize = 24;
+        text.font = GetFont();
+        text.fontSize = 42;
         text.alignment = TextAnchor.MiddleCenter;
         text.color = Color.white;
         text.fontStyle = FontStyle.Bold;
@@ -104,5 +94,13 @@ public class TouchUI : MonoBehaviour
         textRT.anchorMax = Vector2.one;
         textRT.sizeDelta = Vector2.zero;
         textRT.anchoredPosition = Vector2.zero;
+    }
+
+    Font GetFont()
+    {
+        Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        if (font == null) font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+        if (font == null) font = Font.CreateDynamicFontFromOSFont("Arial", 24);
+        return font;
     }
 }

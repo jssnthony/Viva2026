@@ -8,6 +8,7 @@ public class GameUI : MonoBehaviour
     private GUIStyle messageStyle;
     private GUIStyle subStyle;
     private bool stylesInitialized;
+    private bool restartRequested;
 
     void InitStyles()
     {
@@ -70,6 +71,16 @@ public class GameUI : MonoBehaviour
         GUI.Label(new Rect(10, 10, 200, 50), livesStr, livesStyle);
     }
 
+    void Update()
+    {
+        if (restartRequested)
+        {
+            restartRequested = false;
+            GameManager gm = GameManager.Instance;
+            if (gm != null) gm.Restart();
+        }
+    }
+
     void DrawGameOver(GameManager gm)
     {
         GUI.Box(new Rect(0, 0, Screen.width, Screen.height), "");
@@ -78,17 +89,11 @@ public class GameUI : MonoBehaviour
         messageStyle.normal.textColor = gm.IsVictory ? Color.green : Color.red;
         GUI.Label(new Rect(0, Screen.height / 2f - 70, Screen.width, 60), message, messageStyle);
 
-        GUI.Label(new Rect(0, Screen.height / 2f + 10, Screen.width, 40), "Presiona R o toca para reiniciar", subStyle);
-
-        if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.R)
-        {
-            gm.Restart();
-            Event.current.Use();
-        }
+        GUI.Label(new Rect(0, Screen.height / 2f + 10, Screen.width, 40), "Toca para reiniciar", subStyle);
 
         if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.TouchDown)
         {
-            gm.Restart();
+            restartRequested = true;
             Event.current.Use();
         }
     }

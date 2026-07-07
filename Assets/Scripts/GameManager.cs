@@ -27,6 +27,27 @@ public class GameManager : MonoBehaviour
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        if (GameObject.Find("LevelManager") == null)
+        {
+            var go = new GameObject("LevelManager");
+            go.AddComponent<LevelBuilder>();
+        }
+    }
+
+    void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (GameObject.Find("LevelManager") == null)
+        {
+            var go = new GameObject("LevelManager");
+            go.AddComponent<LevelBuilder>();
+        }
     }
 
     public void StartGame()

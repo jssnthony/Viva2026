@@ -86,13 +86,9 @@ public class PlayerController : MonoBehaviour
             currentSpeedX = Mathf.MoveTowards(currentSpeedX, 0f, deceleration * Time.fixedDeltaTime);
         }
 
-        rb.linearVelocity = new Vector2(currentSpeedX, rb.linearVelocity.y);
-
-        if (jumpPressed && isGrounded && !isSliding)
-        {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-            jumpPressed = false;
-        }
+        Vector2 vel = rb.linearVelocity;
+        vel.x = currentSpeedX;
+        rb.linearVelocity = vel;
     }
 
     void CheckGround()
@@ -118,6 +114,11 @@ public class PlayerController : MonoBehaviour
         sprite.color = originalColor;
     }
 
+    void RestoreColor()
+    {
+        sprite.color = originalColor;
+    }
+
     public void SetMoveInput(float x)
     {
         moveInput = new Vector2(x, 0f);
@@ -125,8 +126,11 @@ public class PlayerController : MonoBehaviour
 
     public void DoJump()
     {
-        if (isGrounded && !isSliding)
-            jumpPressed = true;
+        if (isSliding) return;
+        if (!isGrounded) return;
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+        sprite.color = Color.cyan;
+        Invoke("RestoreColor", 0.1f);
     }
 
     public void DoSlide()

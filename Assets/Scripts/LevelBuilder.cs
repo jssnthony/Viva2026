@@ -10,12 +10,6 @@ public static class Bootstrapper
             var gm = new GameObject("GameManager");
             gm.AddComponent<GameManager>();
         }
-
-        if (GameObject.Find("LevelManager") == null)
-        {
-            var go = new GameObject("LevelManager");
-            go.AddComponent<LevelBuilder>();
-        }
     }
 }
 
@@ -25,7 +19,6 @@ public class LevelBuilder : MonoBehaviour
 
     void Awake()
     {
-        if (Camera.main == null) return;
         if (GameObject.Find("Player") != null) return;
 
         if (GameManager.Instance != null)
@@ -51,9 +44,20 @@ public class LevelBuilder : MonoBehaviour
     void SetupCamera()
     {
         Camera cam = Camera.main;
+        if (cam == null)
+        {
+            GameObject camGO = new GameObject("MainCamera");
+            cam = camGO.AddComponent<Camera>();
+            camGO.tag = "MainCamera";
+            camGO.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
+        }
         cam.orthographic = true;
         cam.orthographicSize = 6f;
         cam.backgroundColor = new Color(0.3f, 0.5f, 0.7f);
+
+        var urpData = cam.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
+        if (urpData != null)
+            urpData.renderPostProcessing = false;
 
         camCtrl = cam.gameObject.AddComponent<CameraController>();
         camCtrl.offset = new Vector3(3f, 1f, -10f);
@@ -80,6 +84,7 @@ public class LevelBuilder : MonoBehaviour
 
         BoxCollider2D collider = player.AddComponent<BoxCollider2D>();
         collider.size = new Vector2(0.7f, 1.4f);
+        collider.sharedMaterial = CreateNoFrictionMaterial();
 
         GameObject check = new GameObject("GroundCheck");
         check.transform.parent = player.transform;
@@ -212,6 +217,7 @@ public class LevelBuilder : MonoBehaviour
 
         BoxCollider2D collider = car.AddComponent<BoxCollider2D>();
         collider.size = new Vector2(1.5f, 1f);
+        collider.sharedMaterial = CreateNoFrictionMaterial();
 
         Rigidbody2D rb = car.AddComponent<Rigidbody2D>();
         rb.bodyType = RigidbodyType2D.Kinematic;
@@ -289,6 +295,14 @@ public class LevelBuilder : MonoBehaviour
 
         GameObject restartHint = new GameObject("RestartHint");
         restartHint.transform.position = new Vector3(-1000f, -1000f, 0f);
+    }
+
+    PhysicsMaterial2D CreateNoFrictionMaterial()
+    {
+        var mat = new PhysicsMaterial2D("NoFriction");
+        mat.friction = 0f;
+        mat.bounciness = 0f;
+        return mat;
     }
 
     Sprite CreateSolidSprite(int width, int height, Color color)
