@@ -1,123 +1,66 @@
-# Project arcdteam.viva2026
-
-## Concepto General
-
-arcdteam.viva2026 es un juego de acción 2D inspirado en Katana Zero.
-
-El jugador controla a un asesino que debe infiltrarse en diferentes escenarios eliminando enemigos y superando obstáculos.
-
-La mecánica principal del juego gira alrededor de máscaras especiales que otorgan habilidades únicas. Cada máscara cambia la forma en que el jugador enfrenta los niveles y resuelve los desafíos.
-
-El objetivo es combinar combate rápido, movilidad y habilidades especiales para avanzar a través de los niveles.
-
+Project arcdteam.viva2026
+Concepto General
+arcdteam.viva2026 es un juego de plataformas 2D para celular inspirado en Scott Pilgrim vs. the World: The Game y Super Mario Run, pero más rápido y frenético.
+Controlas a un aficionado de fútbol que corre por las calles de la Ciudad de México para llegar al estadio antes de que termine el partido del Mundial FIFA 2026.
+La mecánica principal es correr, saltar, deslizarse y patear balones de fútbol para eliminar obstáculos y enemigos que te impiden llegar a tiempo.
+El objetivo es llegar a la meta (el estadio) dentro del tiempo límite, esquivando tráfico, burlando policías, esquivando manifestantes y pateando balones a todo lo que se interponga.
 ---
-
-# Visión
-
-Crear un juego de acción 2D con controles simples, combate rápido y progresión basada en máscaras con poderes únicos.
-
-El juego debe ser fácil de aprender pero ofrecer diferentes formas de completar cada nivel dependiendo de la máscara equipada.
-
+Visión
+Crear un juego de acción rápido, gracioso y sencillo con controles táctiles intuitivos. Ambientado en la CDMX durante el Mundial 2026, el juego debe ser fácil de aprender pero difícil de dominar, con un ritmo frenético donde el jugador nunca se detiene por mucho tiempo.
 ---
-
-# Inspiraciones
-
-* Katana Zero
-* Hotline Miami
-* Dead Cells
-
+Inspiraciones
+Scott Pilgrim vs. the World: The Game
+Super Mario Run (celular)
+Katana Zero (ritmo rápido)
+Hotline Miami (acción instantánea)
 ---
-
-# Mecánica Principal
-
-El jugador puede equipar una máscara.
-
-Cada máscara otorga una habilidad especial.
-
-Ejemplos futuros:
-
-* Máscara Fantasma → Invisibilidad temporal.
-* Máscara Jaguar → Mayor velocidad.
-* Máscara Toro → Embestida que destruye obstáculos.
-* Máscara Cuervo → Detectar enemigos a través de paredes.
-* Mascara Conejo → Brincar muy alto
-
-
+Mecánica Principal
+El jugador avanza por la ciudad hacia el estadio. En el camino se encuentra con:
+Tráfico (coches, microbuses) → obstáculos que dañan al contacto. Se saltan por encima.
+Obstáculos bajos (vallas, barreras) → se pasan deslizándose por debajo (slide).
+Policías → enemigos que patrullan y dañan al contacto. Se eliminan pateándoles un balón.
+Autos en movimiento → van de derecha a izquierda, dañan al contacto, se saltan, no se eliminan.
+Tiempo límite de 2 minutos en pantalla. Si llega a cero, pierdes.
 ---
-
-# MVP (Minimum Viable Product)
-
-Objetivo: Tener una versión jugable lo antes posible.
-
-## Características del MVP
-
-### Jugador
-
-* Movimiento izquierda y derecha.
-* Salto.
-* Ataque cuerpo a cuerpo.
-* Sistema de vida simple.
-
-### Enemigo
-
-* Enemigo básico.
-* Patrulla una zona.
-* Puede dañar al jugador.
-* Muere al recibir un ataque.
-
-### Nivel
-
-* Un único nivel.
-* Plataformas básicas.
-* Punto de inicio.
-* Punto de salida.
-
-### Máscara
-
-Solo una máscara para el MVP.
-
-#### Máscara Fantasma
-
-* Activación mediante tecla.
-* Invisibilidad durante algunos segundos.
-* Los enemigos dejan de detectar al jugador.
-
-### Victoria
-
-* Llegar al final del nivel.
-
-### Derrota
-
-* Perder toda la vida.
-
+Wishlist (ideas futuras)
+Power-ups con camisetas/bufandas de equipos, balones, etc. aun no se me ocurre nada sobre esto
 ---
-
-# Objetivos de Desarrollo
-
-## Fase 1
-
-* Movimiento.
-* Salto.
-* Cámara.
-* Colisiones.
-
-## Fase 2
-
-* Ataque.
-* Daño.
-* Muerte de enemigos.
-
-## Fase 3
-
-* Máscara Fantasma.
-* Sistema de habilidades.
-
-## Fase 4
-
-* Completar el primer nivel jugable.
-
+MVP (Minimum Viable Product)
+Características del MVP
+Controles
+Botones táctiles en pantalla (◀ ▶ movimiento, SALTO, SLIDE, PATADA).
+También funciona con teclado (A/D o flechas, Espacio, C, K o clic izquierdo).
+Jugador
+Movimiento izquierda y derecha manual con aceleración.
+Salto (brincar tráfico y obstáculos).
+Slide/deslizarse (pasar por debajo de obstáculos bajos, reduce collider + velocidad extra).
+Patada de balón (proyectil infinito, cooldown 0.3s, elimina policías).
+Sistema de vida simple (3 vidas, invulnerabilidad post-daño).
+Enemigos y obstáculos
+Policía: Patrulla una zona. Daña al contacto. Muere al recibir un balonazo.
+Tráfico estático: Obstáculo rojo. Daña al contacto. Se brinca.
+Auto en movimiento: Va de derecha a izquierda. Daña al contacto. Se brinca. No se elimina.
+Valla/barrera baja: Naranja con rayas. Daña si pasas de pie. Se pasa deslizándose sin daño.
+Nivel (MVP actual)
+Un solo nivel de ~80 unidades de ancho, generado proceduralmente.
+5 secciones: Tutorial → Tráfico → Policías → Mixto → Final.
+Punto de inicio (x=-7) y meta (x=80, rectángulo verde).
+Timer de 2 minutos visible en pantalla (se pone rojo a los 30s).
+Victoria
+Llegar al rectángulo verde (entrada del estadio).
+Derrota
+Perder toda la vida o que el tiempo llegue a cero.
+Presiona R o toca la pantalla para reiniciar.
 ---
-
-# Regla Principal del Proyecto
-
-Antes de crear arte avanzado, música, historia o múltiples niveles, el juego debe ser divertido utilizando únicamente formas simples y sprites temporales.
+Leyenda de colores (sprites temporales)
+Verde oscuro (#006847) = Jugador (aficionado de fútbol)
+Gris oscuro = Suelo/calles
+Gris medio = Plataformas/banquetas
+Rojo = Tráfico estático (coches estacionados, microbuses)
+Rojo con ventanas = Auto en movimiento (va de derecha a izquierda)
+Azul marino = Policía (con cara piel)
+Naranja con rayas = Valla/barrera baja (requiere slide)
+Verde brillante = Meta (entrada del estadio)
+Blanco con borde negro = Balón (proyectil de la patada)
+Azul cielo = Fondo del nivel (cielo CDMX)
+Gris claro (botones UI) = Controles táctiles (semi-transparentes)

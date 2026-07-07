@@ -4,7 +4,7 @@ public class GoalController : MonoBehaviour
 {
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
-            GameManager.Win();
+        if (other.CompareTag("Player") && GameManager.Instance != null)
+            GameManager.Instance.Win();
     }
 }

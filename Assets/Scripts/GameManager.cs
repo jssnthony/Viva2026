@@ -1,37 +1,84 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-public static class GameManager
+public class GameManager : MonoBehaviour
 {
-    public static bool isGameOver { get; private set; }
-    public static bool isVictory { get; private set; }
+    public static GameManager Instance { get; private set; }
 
-    public static void Win()
+    [Header("Tiempo")]
+    public float totalTime = 120f;
+
+    [Header("Vidas")]
+    public int maxLives = 3;
+
+    public float CurrentTime { get; private set; }
+    public int CurrentLives { get; private set; }
+    public bool IsGameOver { get; private set; }
+    public bool IsVictory { get; private set; }
+
+    private bool isRunning;
+
+    void Awake()
     {
-        isGameOver = true;
-        isVictory = true;
-        Time.timeScale = 0f;
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
-    public static void Lose()
+    public void StartGame()
     {
-        isGameOver = true;
-        isVictory = false;
-        Time.timeScale = 0f;
+        CurrentTime = totalTime;
+        CurrentLives = maxLives;
+        IsGameOver = false;
+        IsVictory = false;
+        isRunning = true;
     }
 
-    public static void Restart()
+    void Update()
     {
-        isGameOver = false;
-        isVictory = false;
-        Time.timeScale = 1f;
-        UnityEngine.SceneManagement.SceneManager.LoadScene(
-            UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+        if (!isRunning || IsGameOver) return;
+
+        CurrentTime -= Time.deltaTime;
+        if (CurrentTime <= 0f)
+        {
+            CurrentTime = 0f;
+            Lose();
+        }
     }
 
-    public static void Reset()
+    public void LoseLife()
     {
-        isGameOver = false;
-        isVictory = false;
-        Time.timeScale = 1f;
+        if (IsGameOver) return;
+        CurrentLives--;
+        if (CurrentLives <= 0)
+            Lose();
+    }
+
+    public void Win()
+    {
+        IsGameOver = true;
+        IsVictory = true;
+        isRunning = false;
+    }
+
+    public void Lose()
+    {
+        IsGameOver = true;
+        IsVictory = false;
+        isRunning = false;
+    }
+
+    public void Restart()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void ForceLandscape()
+    {
+        Screen.orientation = ScreenOrientation.LandscapeLeft;
     }
 }
