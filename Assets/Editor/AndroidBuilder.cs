@@ -6,16 +6,20 @@ using System;
 
 public static class AndroidBuilder
 {
-    [MenuItem("Build/Build Android App Bundle")]
-    public static void BuildAAB()
+    private static void SetupKeystore()
     {
         PlayerSettings.Android.keystoreName = "Build/arcdteam.viva2026.keystore";
         PlayerSettings.Android.keystorePass = EnvOrDefault("ANDROID_KEYSTORE_PASS", "blacksoldierpendejo1");
         PlayerSettings.Android.keyaliasName = "arcdteam";
         PlayerSettings.Android.keyaliasPass = EnvOrDefault("ANDROID_KEYALIAS_PASS", "blacksoldierpendejo1");
+    }
+
+    private static void DoBuild(string extension)
+    {
+        SetupKeystore();
 
         string[] scenes = { "Assets/Scenes/SampleScene.unity" };
-        string outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Build/arcdteam.viva2026.aab");
+        string outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Build/arcdteam.viva2026." + extension);
 
         BuildPlayerOptions options = new BuildPlayerOptions
         {
@@ -32,6 +36,18 @@ public static class AndroidBuilder
             UnityEngine.Debug.Log("Build exitoso: " + outputPath);
         else
             UnityEngine.Debug.LogError("Build fallido: " + report.summary.totalErrors + " errores");
+    }
+
+    [MenuItem("Build/Build Android App Bundle")]
+    public static void BuildAAB()
+    {
+        DoBuild("aab");
+    }
+
+    [MenuItem("Build/Build Android APK")]
+    public static void BuildAPK()
+    {
+        DoBuild("apk");
     }
 
     private static string EnvOrDefault(string key, string fallback)

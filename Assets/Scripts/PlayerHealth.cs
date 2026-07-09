@@ -10,12 +10,13 @@ public class PlayerHealth : MonoBehaviour
     private SpriteRenderer sprite;
     private float invulnerabilityTimer;
     private bool isInvulnerable;
-    private bool forceInvulnerable;
+    private PlayerController playerController;
 
     void Awake()
     {
         currentHealth = maxHealth;
         sprite = GetComponent<SpriteRenderer>();
+        playerController = GetComponent<PlayerController>();
     }
 
     void Update()
@@ -23,7 +24,6 @@ public class PlayerHealth : MonoBehaviour
         if (isInvulnerable)
         {
             invulnerabilityTimer -= Time.deltaTime;
-
             sprite.enabled = Mathf.FloorToInt(invulnerabilityTimer * 10) % 2 == 0;
 
             if (invulnerabilityTimer <= 0)
@@ -34,24 +34,47 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    public void SetInvulnerable(bool invulnerable)
-    {
-        forceInvulnerable = invulnerable;
-    }
-
     public void TakeDamage(int amount)
     {
-        if (isInvulnerable || forceInvulnerable) return;
+        if (isInvulnerable) return;
 
         currentHealth -= amount;
         isInvulnerable = true;
         invulnerabilityTimer = invulnerabilityTime;
 
-        if (currentHealth <= 0) Die();
+        if (GameManager.Instance != null)
+            GameManager.Instance.LoseLife();
+
+        if (currentHealth <= 0)
+            Die();
     }
 
     void Die()
     {
-        GameManager.Lose();
+        if (GameManager.Instance != null)
+            GameManager.Instance.Lose();
+    }
+
+    void OnCollisionEnter2D(Collision2D other)
+    {
+        HandleDamage(other.gameObject);
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        HandleDamage(other.gameObject);
+    }
+
+    void HandleDamage(GameObject source)
+    {
+        if (isInvulnerable) return;
+
+        DamageDealer dd = source.GetComponent<DamageDealer>();
+        if (dd == null) return;
+
+        if (dd.bypassWhenSliding && playerController != null && playerController.IsSliding())
+            return;
+
+        TakeDamage(dd.damage);
     }
 }
